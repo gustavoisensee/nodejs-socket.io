@@ -1,0 +1,25 @@
+{
+  "name": "nodejssocketio",
+  "version": "1.0.0",
+  "description": "it's a simple project with aims to create a web application with nodejs and socket.io",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gustavoisensee/nodejs-socket.io.git"
+  },
+  "author": "Gustavo Isensee",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gustavoisensee/nodejs-socket.io/issues"
+  },
+  "homepage": "https://github.com/gustavoisensee/nodejs-socket.io#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "spdy": "^3.4.0"
+  }
+}

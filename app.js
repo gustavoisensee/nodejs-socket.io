@@ -7,7 +7,7 @@ const io         = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const fs         = require('fs');
 const port       = (process.env.PORT || 3000);
-
+let users        = [];
 app.use(express.static(path.join(__dirname, '/public')));
 
 // Set patterns to the bodyParser
@@ -29,6 +29,11 @@ io.on('connection', (socket) => {
 
   socket.on('send-message', (msg) => {
     io.emit('send-message', msg);
+  });
+
+  socket.on('send-user', (user) => {
+  	users.push(user)
+  	io.emit('send-user', users);
   });
 
 });

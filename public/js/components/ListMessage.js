@@ -9,10 +9,12 @@ export class ListMessage extends React.Component {
 		return (
 			<div className="div-messages">
 				<ul className="messages">
-					{this.props.messages.map((message, i) => {
+					{this.props.messages.map((m, i) => {
 	          return (
 	            <li key={i}>
-	              {message}
+            		{m.user.name}
+            		<span>:&nbsp;</span>
+	              {m.message}
 	            </li>
 	          );
 	        })}

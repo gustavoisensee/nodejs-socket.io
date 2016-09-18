@@ -28,16 +28,20 @@ form input {
 
 form button { 
   width: calc(10% - 10px);
-  height: 70%;
-  background: rgb(90, 117, 255);
-  border: none;
-  border-radius: 2px;
-  color: #fff;
-  box-shadow: 4px 4px 10px #808080;
+  height: 70%;  
 }
 
 div {
 	display: flex;
+}
+
+.btn {
+	background: rgb(90, 117, 255);
+  border: none;
+  border-radius: 2px;
+  color: #fff;
+  box-shadow: 4px 4px 10px #808080;
+  cursor: pointer;
 }
 
 #root {
@@ -59,19 +63,92 @@ div {
 
 .messages li {
 	padding: 10px 8px;
+	border-radius: 2px;
 }
 	
 .messages li:nth-child(odd) {
 	background: #eee;
 }
 
+.content-header-user {
+  height: 32px;
+  font-weight: 700;
+  padding: 8px;
+  border-bottom: 1px #ccc dashed;
+}
+
+.content-message-user {
+	flex-direction: row;
+	height: 100%;
+}
+
 .div-messages {
-  height: 88%;
+  width: 85%;
   overflow: auto;
+  padding: 10px 0px 10px 10px;
+  margin-bottom: 10px;
+}
+
+.div-users {
+	width: 15%;
+	overflow: auto;
   padding: 10px;
   margin-bottom: 10px;
 }
 
+	.div-users > ul {
+		list-style-type: none;
+	  margin: 0;
+	  padding: 0;
+	  width: 100%;
+    border-left: 1px #ccc dashed;
+	}
+
+		.div-users > ul > li {
+			margin: 4px;
+			padding: 4px;
+	    cursor: pointer;
+	    border-radius: 2px;
+		}
+
+			.div-users > ul > li:hover {
+				background: #eee;
+			}
+
 .div-form {
-	height: 12%;
+	height: 60px;
+}
+
+.user-modal-content {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+  align-items: center;
+  justify-content: center;
+  background: rgba(191, 191, 191, 0.4);
+}
+
+.user-modal {
+  width: 182px;
+  height: 100px;
+  top: calc(50% - 50px);
+  left: calc(50% - 91px);
+  background: #fff;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-shadow: 4px 4px 10px #808080;
+  border-radius: 3px;
+}
+
+.user-modal input {
+  width: 100%;
+  margin: 6px;
+}
+
+.user-modal button {
+	width: 60px;
+  height: 30px;
 }

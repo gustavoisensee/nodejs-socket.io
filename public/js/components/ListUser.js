@@ -11,7 +11,7 @@ export class ListUser extends React.Component {
 				<ul className="uers">
 					{this.props.users.map((user, i) => {
 	          return (
-	            <li key={i}>
+	            <li key={i} onDoubleClick={this.props.selectUser}>
             		{user.name}
 	            </li>
 	          );

@@ -14308,6 +14308,7 @@
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var socket = (0, _socket2.default)();
+	var messages = [{ for: 'everyone', msgs: [], selected: true }];
 
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -14318,7 +14319,8 @@
 			var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
 			_this.state = {
-				messages: [],
+				message: messages[0],
+				userDestiny: null,
 				user: {},
 				users: []
 			};
@@ -14328,30 +14330,52 @@
 		_createClass(App, [{
 			key: 'sendMessage',
 			value: function sendMessage(msg) {
-				var messages = this.state.messages;
+				var _this2 = this;
 
-				messages.push(msg);
-				this.setState({ messages: messages });
+				var user = '';
+
+				if (this.state.userDestiny) {
+					var found = false;
+					messages.forEach(function (f) {
+						if (f.for === _this2.state.userDestiny.id) {
+							f.msgs.push(msg);
+							found = true;
+							_this2.setState({ message: f });
+						}
+					});
+					if (!found) {
+						var message = {
+							for: this.state.userDestiny.id,
+							msgs: [msg]
+						};
+						messages.push(message);
+						this.setState({ message: message });
+					}
+				} else {
+					messages[0].msgs.push(msg); //for everyone
+					this.setState({ message: messages[0] });
+				}
+				document.getElementsByClassName('div-messages')[0].scrollTop = 99999999999;
 			}
 		}, {
 			key: 'sendUser',
 			value: function sendUser(users) {
-				var _this2 = this;
+				var _this3 = this;
 
 				this.setState({ users: users.filter(function (user) {
-						return user.id !== _this2.state.user.id;
+						return user.id !== _this3.state.user.id;
 					}) });
 			}
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
-				var _this3 = this;
+				var _this4 = this;
 
 				socket.on('send-message', function (e) {
-					return _this3.sendMessage(e);
+					return _this4.sendMessage(e);
 				});
 				socket.on('send-user', function (e) {
-					return _this3.sendUser(e);
+					return _this4.sendUser(e);
 				});
 			}
 		}, {
@@ -14380,9 +14404,14 @@
 				}
 			}
 		}, {
+			key: 'selectUser',
+			value: function selectUser(e) {
+				console.log('select user');
+			}
+		}, {
 			key: 'render',
 			value: function render() {
-				var _this4 = this;
+				var _this5 = this;
 
 				return _react2.default.createElement(
 					'div',
@@ -14402,7 +14431,7 @@
 							_react2.default.createElement(
 								'button',
 								{ onClick: function onClick(e) {
-										return _this4.userEnter(e);
+										return _this5.userEnter(e);
 									}, className: 'btn' },
 								'Enter'
 							)
@@ -14421,8 +14450,10 @@
 					_react2.default.createElement(
 						'div',
 						{ className: 'content-message-user' },
-						_react2.default.createElement(_ListMessage.ListMessage, { messages: this.state.messages }),
-						_react2.default.createElement(_ListUser.ListUser, { users: this.state.users })
+						_react2.default.createElement(_ListMessage.ListMessage, { messages: this.state.message.msgs }),
+						_react2.default.createElement(_ListUser.ListUser, { users: this.state.users, selectUser: function selectUser(e) {
+								return _this5.selectUser(e);
+							} })
 					),
 					_react2.default.createElement(
 						'div',
@@ -14430,7 +14461,7 @@
 						_react2.default.createElement(
 							'form',
 							{ ref: 'form', className: 'form-general', onSubmit: function onSubmit(e) {
-									return _this4.submit(e);
+									return _this5.submit(e);
 								} },
 							_react2.default.createElement('input', { ref: 'message', required: true }),
 							_react2.default.createElement(
@@ -14554,6 +14585,8 @@
 		_createClass(ListUser, [{
 			key: "render",
 			value: function render() {
+				var _this2 = this;
+
 				return _react2.default.createElement(
 					"div",
 					{ className: "div-users" },
@@ -14563,7 +14596,7 @@
 						this.props.users.map(function (user, i) {
 							return _react2.default.createElement(
 								"li",
-								{ key: i },
+								{ key: i, onDoubleClick: _this2.props.selectUser },
 								user.name
 							);
 						})
@@ -14845,7 +14878,7 @@
 
 
 	// module
-	exports.push([module.id, "* { \n\tmargin: 0;\n\tpadding: 0;\n\tbox-sizing:\n\tborder-box;\n}\n\nbody, html { \n\tfont: 13px Helvetica, Arial; \n\theight: 100%;\n  width: 100%;\n  display: flex;\n}\n\nform { \n  width: 100%;\n  height: 100%;\n}\n\nform input { \n  width: calc(90% - 20px);\n  height: 70%;\n  margin-right: 10px;\n  margin-left: 10px;\n  border: 1.1px;\n  box-shadow: 4px 4px 10px #808080;\n}\n\nform button { \n  width: calc(10% - 10px);\n  height: 70%;  \n}\n\ndiv {\n\tdisplay: flex;\n}\n\n.btn {\n\tbackground: rgb(90, 117, 255);\n  border: none;\n  border-radius: 2px;\n  color: #fff;\n  box-shadow: 4px 4px 10px #808080;\n  cursor: pointer;\n}\n\n#root {\n\twidth: 100%;\n\theight: 100%;\n}\n\t#root > div {\n\t\tflex-direction: column;\n    width: 100%;\n    height: 100%;\n\t}\n\n.messages {\n\tlist-style-type: none;\n\tmargin: 0; \n\tpadding: 0;\n\twidth: 100%;\n}\n\n.messages li {\n\tpadding: 10px 8px;\n\tborder-radius: 2px;\n}\n\t\n.messages li:nth-child(odd) {\n\tbackground: #eee;\n}\n\n.content-header-user {\n  height: 32px;\n  font-weight: 700;\n  padding: 8px;\n  border-bottom: 1px #ccc dashed;\n}\n\n.content-message-user {\n\tflex-direction: row;\n\theight: 100%;\n}\n\n.div-messages {\n  width: 85%;\n  overflow: auto;\n  padding: 10px 0px 10px 10px;\n  margin-bottom: 10px;\n}\n\n.div-users {\n\twidth: 15%;\n\toverflow: auto;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n\n\t.div-users > ul {\n\t\tlist-style-type: none;\n\t  margin: 0;\n\t  padding: 0;\n\t  width: 100%;\n    border-left: 1px #ccc dashed;\n\t}\n\n\t\t.div-users > ul > li {\n\t\t\tmargin: 4px;\n\t\t\tpadding: 4px;\n\t    cursor: pointer;\n\t    border-radius: 2px;\n\t\t}\n\n\t\t\t.div-users > ul > li:hover {\n\t\t\t\tbackground: #eee;\n\t\t\t}\n\n.div-form {\n\theight: 60px;\n}\n\n.user-modal-content {\n\tposition: fixed;\n\twidth: 100%;\n\theight: 100%;\n\tz-index: 1;\n  align-items: center;\n  justify-content: center;\n  background: rgba(191, 191, 191, 0.4);\n}\n\n.user-modal {\n  width: 182px;\n  height: 100px;\n  top: calc(50% - 50px);\n  left: calc(50% - 91px);\n  background: #fff;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  padding: 10px;\n  box-shadow: 4px 4px 10px #808080;\n  border-radius: 3px;\n}\n\n.user-modal input {\n  width: 100%;\n  margin: 6px;\n}\n\n.user-modal button {\n\twidth: 60px;\n  height: 30px;\n}", ""]);
+	exports.push([module.id, "* { \n\tmargin: 0;\n\tpadding: 0;\n\tbox-sizing:\n\tborder-box;\n}\n\nbody, html { \n\tfont: 13px Helvetica, Arial; \n\theight: 100%;\n  width: 100%;\n  display: flex;\n}\n\nform { \n  width: 100%;\n  height: 100%;\n}\n\nform input { \n  width: calc(90% - 20px);\n  height: 70%;\n  margin-right: 10px;\n  margin-left: 10px;\n  border: 1.1px;\n  box-shadow: 4px 4px 10px #808080;\n}\n\nform button { \n  width: calc(10% - 10px);\n  height: 70%;  \n}\n\ndiv {\n\tdisplay: flex;\n}\n\n.btn {\n\tbackground: rgb(90, 117, 255);\n  border: none;\n  border-radius: 2px;\n  color: #fff;\n  box-shadow: 4px 4px 10px #808080;\n  cursor: pointer;\n}\n\n#root {\n\twidth: 100%;\n\theight: 100%;\n}\n\t#root > div {\n\t\tflex-direction: column;\n    width: 100%;\n    height: 100%;\n\t}\n\n.messages {\n\tlist-style-type: none;\n\tmargin: 0; \n\tpadding: 0;\n\twidth: 100%;\n}\n\n.messages li {\n\tpadding: 10px 8px;\n\tborder-radius: 2px;\n}\n\t\n.messages li:nth-child(odd) {\n\tbackground: #eee;\n}\n\n.content-header-user {\n  height: 32px;\n  font-weight: 700;\n  padding: 8px;\n  border-bottom: 1px #ccc dashed;\n}\n\n.content-message-user {\n\tflex-direction: row;\n\theight: calc(100% - 92px);\n}\n\n.div-messages {\n  width: 85%;\n  overflow: auto;\n  padding: 10px 0px 10px 10px;\n  margin-bottom: 10px;\n}\n\n.div-users {\n\twidth: 15%;\n\toverflow: auto;\n  padding: 10px;\n  margin-bottom: 10px;\n}\n\n\t.div-users > ul {\n\t\tlist-style-type: none;\n\t  margin: 0;\n\t  padding: 0;\n\t  width: 100%;\n    border-left: 1px #ccc dashed;\n\t}\n\n\t\t.div-users > ul > li {\n\t\t\tmargin: 4px;\n\t\t\tpadding: 4px;\n\t    cursor: pointer;\n\t    border-radius: 2px;\n\t\t}\n\n\t\t\t.div-users > ul > li:hover {\n\t\t\t\tbackground: #eee;\n\t\t\t}\n\n.div-form {\n\theight: 60px;\n}\n\n.user-modal-content {\n\tposition: fixed;\n\twidth: 100%;\n\theight: 100%;\n\tz-index: 1;\n  align-items: center;\n  justify-content: center;\n  background: rgba(191, 191, 191, 0.4);\n}\n\n.user-modal {\n  width: 182px;\n  height: 100px;\n  top: calc(50% - 50px);\n  left: calc(50% - 91px);\n  background: #fff;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  padding: 10px;\n  box-shadow: 4px 4px 10px #808080;\n  border-radius: 3px;\n}\n\n.user-modal input {\n  width: 100%;\n  margin: 6px;\n}\n\n.user-modal button {\n\twidth: 60px;\n  height: 30px;\n}", ""]);
 
 	// exports
 

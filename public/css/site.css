@@ -79,7 +79,7 @@ div {
 
 .content-message-user {
 	flex-direction: row;
-	height: 100%;
+	height: calc(100% - 92px);
 }
 
 .div-messages {

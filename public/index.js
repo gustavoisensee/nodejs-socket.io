@@ -8,22 +8,46 @@ import { ListMessage } from './js/components/ListMessage';
 import { ListUser } from './js/components/ListUser';
 
 const socket = io();
+let messages = [{for: 'everyone', msgs: [], selected: true}];
 
 class App extends React.Component {
 
 	constructor (props) {
 		super(props);
 		this.state = {
-			messages: [],
+			message: messages[0],
+			userDestiny: null,
 			user: {},
 			users: []
 		}
 	};
 
 	sendMessage (msg) {
-		let { messages } = this.state;
-    messages.push(msg);
-    this.setState({ messages });
+		let user = '';
+
+		if (this.state.userDestiny) {
+			let found = false;
+			messages.forEach(f => {
+				if (f.for === this.state.userDestiny.id) {
+					f.msgs.push(msg);
+					found = true;
+					this.setState({message: f});
+				}
+			});
+			if (!found) {
+				let message = {
+					for: this.state.userDestiny.id,
+					msgs: [msg]
+				};
+				messages.push(message);
+				this.setState({message});
+			}
+
+		} else {
+			messages[0].msgs.push(msg); //for everyone
+			this.setState({message: messages[0]});
+		}
+    document.getElementsByClassName('div-messages')[0].scrollTop = 99999999999;
 	};
 
 	sendUser (users) {
@@ -58,6 +82,10 @@ class App extends React.Component {
 		}
 	};
 
+	selectUser (e) {
+		console.log('select user');
+	};
+
 	render () {
 		return (
 			<div className="root">
@@ -73,8 +101,8 @@ class App extends React.Component {
 					{this.state.user.name}
 				</div>
 				<div className="content-message-user">
-					<ListMessage messages={this.state.messages} />
-					<ListUser users={this.state.users} />
+					<ListMessage messages={this.state.message.msgs} />
+					<ListUser users={this.state.users} selectUser={(e) => this.selectUser(e)} />
 				</div>
 				<div className="div-form">
 			    <form ref="form" className="form-general" onSubmit={(e) => this.submit(e)}>

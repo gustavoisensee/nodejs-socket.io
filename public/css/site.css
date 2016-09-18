@@ -1,0 +1,77 @@
+* { 
+	margin: 0;
+	padding: 0;
+	box-sizing:
+	border-box;
+}
+
+body, html { 
+	font: 13px Helvetica, Arial; 
+	height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+form { 
+  width: 100%;
+  height: 100%;
+}
+
+form input { 
+  width: calc(90% - 20px);
+  height: 70%;
+  margin-right: 10px;
+  margin-left: 10px;
+  border: 1.1px;
+  box-shadow: 4px 4px 10px #808080;
+}
+
+form button { 
+  width: calc(10% - 10px);
+  height: 70%;
+  background: rgb(90, 117, 255);
+  border: none;
+  border-radius: 2px;
+  color: #fff;
+  box-shadow: 4px 4px 10px #808080;
+}
+
+div {
+	display: flex;
+}
+
+#root {
+	width: 100%;
+	height: 100%;
+}
+	#root > div {
+		flex-direction: column;
+    width: 100%;
+    height: 100%;
+	}
+
+.messages {
+	list-style-type: none;
+	margin: 0; 
+	padding: 0;
+	width: 100%;
+}
+
+.messages li {
+	padding: 10px 8px;
+}
+	
+.messages li:nth-child(odd) {
+	background: #eee;
+}
+
+.div-messages {
+  height: 88%;
+  overflow: auto;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.div-form {
+	height: 12%;
+}

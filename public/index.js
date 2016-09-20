@@ -6,47 +6,43 @@ import Guid from 'guid';
 
 import { ListMessage } from './js/components/ListMessage';
 import { ListUser } from './js/components/ListUser';
+import { Tabs } from './js/components/Tabs';
 
 const socket = io();
-let messages = [{for: 'everyone', msgs: [], selected: true}];
 
 class App extends React.Component {
 
 	constructor (props) {
 		super(props);
 		this.state = {
-			message: messages[0],
+			messages: [{for: 'everyone', name: 'Everyone', msgs: [], selected: true}],
 			userDestiny: null,
 			user: {},
 			users: []
-		}
+		};
 	};
 
 	sendMessage (msg) {
-		let user = '';
+		let messages = this.state.messages;
+		let found = false;
 
-		if (this.state.userDestiny) {
-			let found = false;
-			messages.forEach(f => {
-				if (f.for === this.state.userDestiny.id) {
-					f.msgs.push(msg);
-					found = true;
-					this.setState({message: f});
-				}
+		messages.forEach(f => {
+			//if (f.for === msg.for) {
+				//|| this.state.user.id == msg.user.id
+			if (f.for === msg.user.id || f.for === msg.for || msg.for === 'everyone') {
+				f.msgs.push(msg);
+				found = true;
+			};
+		});
+		if (!found && msg.for === this.state.user.id) {
+			messages.push({
+				for: msg.user.id,
+				msgs: [msg],
+				name: msg.user.name,
+				selected: false
 			});
-			if (!found) {
-				let message = {
-					for: this.state.userDestiny.id,
-					msgs: [msg]
-				};
-				messages.push(message);
-				this.setState({message});
-			}
-
-		} else {
-			messages[0].msgs.push(msg); //for everyone
-			this.setState({message: messages[0]});
 		}
+		this.setState({messages});
     document.getElementsByClassName('div-messages')[0].scrollTop = 99999999999;
 	};
 
@@ -62,8 +58,9 @@ class App extends React.Component {
 	submit (e) {
 		e.preventDefault();
 		const message = this.refs.message.value;
+		const destiny = this.state.messages.filter(f => f.selected == true);
 		if (message) {
-			socket.emit('send-message', { user: this.state.user, message });
+			socket.emit('send-message', { user: this.state.user, message, for: destiny[0].for });
 	  	this.refs.message.value = '';
 		}
 	};
@@ -83,7 +80,55 @@ class App extends React.Component {
 	};
 
 	selectUser (e) {
-		console.log('select user');
+		const id = e.currentTarget.dataset.id;
+		const name = e.currentTarget.dataset.name;
+		const messages = this.state.messages;
+		const msgSelect = messages.filter(f => { return f.for === id});
+		if (msgSelect.length === 0) {
+			messages.forEach(f => {
+				f.selected = false;
+			});
+			messages.push({
+				for: id,
+				name: name,
+				msgs: [],
+				selected: true
+			});
+			this.setState({messages});
+
+		} else {
+			messages.forEach((f) => {
+				f.selected = (f.for === id);
+			});
+			this.setState({messages});
+		}
+	};
+
+	selectUserTab (e) {
+		let messages = this.state.messages;
+		messages.forEach(f => {
+			if (f.for === e.currentTarget.dataset.id) {
+				f.selected = true;
+			} else {
+				f.selected = false;
+			}
+		});
+		this.setState({messages});
+	};
+
+	closeUserTab (e) {
+		let messages = this.state.messages;
+		let indice = 0;
+		messages[0].selected = true;
+
+		messages.forEach((f,i) => {
+			if (f.for === e.currentTarget.dataset.id) {
+				indice = i;
+			}
+		});
+		messages.splice(indice, 1);
+
+		this.setState({messages});
 	};
 
 	render () {
@@ -97,11 +142,15 @@ class App extends React.Component {
 					</div>
 				</div>
 				<div className="content-header-user">
-					<span>User:&nbsp;</span>
-					{this.state.user.name}
+					<div className="user-logged">
+						<span>User:&nbsp;</span>
+						{this.state.user.name}
+					</div>
+					<Tabs tabs={this.state.messages} selectTab={(e) => this.selectUserTab(e)}
+						closeTab={(e) => this.closeUserTab(e)} />
 				</div>
 				<div className="content-message-user">
-					<ListMessage messages={this.state.message.msgs} />
+					<ListMessage messages={this.state.messages.filter(f => f.selected == true)[0].msgs} />
 					<ListUser users={this.state.users} selectUser={(e) => this.selectUser(e)} />
 				</div>
 				<div className="div-form">

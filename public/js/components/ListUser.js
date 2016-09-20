@@ -8,10 +8,11 @@ export class ListUser extends React.Component {
 	render () {
 		return (
 			<div className="div-users">
-				<ul className="uers">
+				<ul className="users">
 					{this.props.users.map((user, i) => {
 	          return (
-	            <li key={i} onDoubleClick={this.props.selectUser}>
+	            <li key={i} data-id={user.id} data-name={user.name}
+	            	onDoubleClick={this.props.selectUser}>
             		{user.name}
 	            </li>
 	          );

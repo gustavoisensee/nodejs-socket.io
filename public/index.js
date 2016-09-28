@@ -9,13 +9,20 @@ import { ListUser } from './js/components/ListUser';
 import { Tabs } from './js/components/Tabs';
 
 const socket = io();
+const everyone = {id: 'everyone', name: 'Everyone'};
 
 class App extends React.Component {
-
 	constructor (props) {
 		super(props);
 		this.state = {
-			messages: [{for: 'everyone', name: 'Everyone', msgs: [], selected: true}],
+			messages: [
+				{
+					from: everyone, 
+					to: everyone,
+					msgs: [],
+					selected: true
+				}
+			],
 			userDestiny: null,
 			user: {},
 			users: []
@@ -27,18 +34,27 @@ class App extends React.Component {
 		let found = false;
 
 		messages.forEach(f => {
-			//if (f.for === msg.for) {
-				//|| this.state.user.id == msg.user.id
-			if (f.for === msg.user.id || f.for === msg.for || msg.for === 'everyone') {
-				f.msgs.push(msg);
+			if (msg.to.id == everyone.id && f.to.id == everyone.id) {
+				//for Everyone
+				f.msgs.push({name: msg.from.name, text: msg.message});
 				found = true;
-			};
+
+			} else if (msg.to.id == f.to.id && msg.from.id == f.from.id) {
+				//for Origin
+				f.msgs.push({name: msg.from.name, text: msg.message});
+				found = true;
+
+			} else if (msg.from.id == f.to.id && msg.to.id == f.from.id) {
+				//for Destiny
+				f.msgs.push({name: msg.from.name, text: msg.message});
+				found = true;
+			}
 		});
-		if (!found && msg.for === this.state.user.id) {
+		if (!found && msg.to.id === this.state.user.id) {
 			messages.push({
-				for: msg.user.id,
-				msgs: [msg],
-				name: msg.user.name,
+				from: msg.to,
+				to: msg.from,
+				msgs: [{name: msg.from.name, text: msg.message}],
 				selected: false
 			});
 		}
@@ -60,7 +76,7 @@ class App extends React.Component {
 		const message = this.refs.message.value;
 		const destiny = this.state.messages.filter(f => f.selected == true);
 		if (message) {
-			socket.emit('send-message', { user: this.state.user, message, for: destiny[0].for });
+			socket.emit('send-message', { from: this.state.user, to: destiny[0].to, message });
 	  	this.refs.message.value = '';
 		}
 	};
@@ -83,14 +99,14 @@ class App extends React.Component {
 		const id = e.currentTarget.dataset.id;
 		const name = e.currentTarget.dataset.name;
 		const messages = this.state.messages;
-		const msgSelect = messages.filter(f => { return f.for === id});
+		const msgSelect = messages.filter(f => { return f.to === id});
 		if (msgSelect.length === 0) {
 			messages.forEach(f => {
 				f.selected = false;
 			});
 			messages.push({
-				for: id,
-				name: name,
+				from: this.state.user,
+				to: {id,name},
 				msgs: [],
 				selected: true
 			});
@@ -98,7 +114,7 @@ class App extends React.Component {
 
 		} else {
 			messages.forEach((f) => {
-				f.selected = (f.for === id);
+				f.selected = (f.to.id === id);
 			});
 			this.setState({messages});
 		}
@@ -107,7 +123,7 @@ class App extends React.Component {
 	selectUserTab (e) {
 		let messages = this.state.messages;
 		messages.forEach(f => {
-			if (f.for === e.currentTarget.dataset.id) {
+			if (f.to.id === e.currentTarget.dataset.id) {
 				f.selected = true;
 			} else {
 				f.selected = false;
@@ -122,7 +138,7 @@ class App extends React.Component {
 		messages[0].selected = true;
 
 		messages.forEach((f,i) => {
-			if (f.for === e.currentTarget.dataset.id) {
+			if (f.to.id === e.currentTarget.dataset.id) {
 				indice = i;
 			}
 		});
